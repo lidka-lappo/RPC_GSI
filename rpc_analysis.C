@@ -8,7 +8,6 @@ struct crystal_info {
 
 };
 
-#define TRIG(i) (1 << (i - 1))
 
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
@@ -23,8 +22,20 @@ void rpc_analysis()
  ///////////////////////////////////////////////////////////
  
   TH2F *Pos_histo = new TH2F("Position","Position",1500,0,1500,41,0,42);
-      
+  TH1F *strip_histo[42];   
+
+  for(int i =0; i <42; i ++)
+  {
+   	stringstream strs;
+	strs << i;
+	string tmp = strs.str();
+	char *name = (char *) tmp.c_str();
+	strip_histo[i] = new TH1F(name,name,1500,0,1500);
+
+  }
+
 /////////////////////////////////////////////////////////////////////
+
 
   std::vector<TString> fileList;
 
@@ -57,7 +68,6 @@ void rpc_analysis()
 
   eventTree->SetBranchStatus("R3BRpcHitData.*",1);
   eventTree->SetBranchStatus("EventHeader.*",1);
- // eventTree->SetBranchStatus("TofdHit.*",1);
 
   TClonesArray *hitCA = new TClonesArray("R3BRpcHitData");
   TBranch  *hitBranch = eventTree->GetBranch("R3BRpcHitData");
@@ -66,10 +76,6 @@ void rpc_analysis()
   R3BEventHeader *fEventHeader = new R3BEventHeader;
   eventTree->SetBranchAddress("EventHeader.",&fEventHeader);
 
-  //TClonesArray *tofdCA = new TClonesArray("R3BTofdHitData");
-  //TBranch  *tofdhitBranch = eventTree->GetBranch("TofdHit");
-  //tofdhitBranch->SetAddress(&tofdCA); 
-  
   Int_t nEvents = eventTree->GetEntries();
   Int_t nHits, ntofdHits, nCalifaHits, nCalifaCalHits;
   Int_t c = 2048*5;
@@ -90,50 +96,51 @@ void rpc_analysis()
   Float_t fEnergy,fTheta2,fTheta1,fPhi1,fPhi2,fEnergy1,fEnergy2,openingAngle;
 
   for(Int_t t = 0; t< nEvents; t++){
-//  cout<<"event "<<t<<endl;
    hitCA->Clear();
-  // tofdCA->Clear();
-if(t%10000==0)
+if(t%100000==0)
 	cout<<t<<endl;	 
    eventTree->GetEvent(t);
    nHits = hitCA->GetEntries();
-   //ntofdHits= tofdCA->GetEntries();
-//cout<<"Number of Hits: "<<nHits<<endl;
    fEnergy=0.0;
    goodEvent=0;
    goodCrystalHit=0;
-//What is p2p?
-//  bool p2p = (TRIG(4) | TRIG(10)) & fEventHeader->GetTpat();
-  //	cout<<TRIG(4)<<endl;
-  // if (p2p){
-    
-//	cout<<"And here not"<<endl;
     if(nHits == 0){continue;}
    
-  //  for(Int_t i = 0; i< ntofdHits; i++){
-   //  auto hitTofd = (R3BTofdHitData*)tofdCA->At(i);
-//	tofd_Q = hitTofd->GetEloss();
-//	tofd_tof = hitTofd->GetTof();
-
-  //  
-  //  }
     for(Int_t i = 0; i< nHits; i++){
      auto map1 = (R3BRpcHitData*)(hitCA->At(i));
-  //    cout<<"pozycja "<< map1->GetPos()<<endl;
      if(map1->GetDetId()==0){
       Pos_histo->Fill(map1->GetPos(),map1->GetChannelId());
+      strip_histo[map1->GetChannelId()]->Fill(map1->GetPos());
      }
 
     }
    }
-  //}
  }
 
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
-
-
+  int n =1;
+  TCanvas *C[n];
+  for (int i=0; i<n; i++)
+  {
+   	stringstream strs;
+	strs << i;
+	string tmp = strs.str();
+	char *name = (char *) tmp.c_str();
+	C[i] = new TCanvas(name,name,1500,600);
+	C[i]->Divide(3,2);
+  }
   C1->cd();
   Pos_histo->Draw("colz");
+  
+for(int i=0; i<n; i++)
+{
+	for(int j=1; j<7; j++)
+	{
+		C[0]->cd(j);
+		strip_histo[i*6+j]->Draw("");
+	}
+}
+
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
