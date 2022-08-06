@@ -24,13 +24,16 @@ void rpc_analysis()
   TH2F *Pos_histo = new TH2F("Position","Position",1500,0,1500,41,0,42);
   TH1F *strip_histo[42];   
 
+  TH1F *strip_smooth[42];   
+
   for(int i =0; i <42; i ++)
   {
    	stringstream strs;
 	strs << i;
 	string tmp = strs.str();
 	char *name = (char *) tmp.c_str();
-	strip_histo[i] = new TH1F(name,name,1500,0,1500);
+	strip_histo[i] = new TH1F(name,name,150,0,1500);
+	strip_smooth[i] = new TH1F(name,name,300,0,1500);
 
   }
 
@@ -116,7 +119,27 @@ if(t%100000==0)
     }
    }
  }
+cout<<"kupa"<<endl;
+int tmp1, tmp2, tmp3, tmp4, tmp5;
+/*for(int i=0; i <42; i++)
+{
+	cout<<"Kupa "<<i<<endl;
+	for(int j=0; j<1500; j++)
+	{
+	tmp1 = strip_histo[i]->GetBinContent(j-2);
+	
+	tmp2 = strip_histo[i]->GetBinContent(j-1);
+	
+	tmp3 = strip_histo[i]->GetBinContent(j);
+	
+	tmp4 = strip_histo[i]->GetBinContent(j+1);
+	
+	tmp5 = strip_histo[i]->GetBinContent(j+2);
+	strip_smooth[i]->Fill((tmp1+tmp2+tmp3+tmp4+tmp5)/5);
+//	cout<<j;
+	}
 
+}*/
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n =1;
   TCanvas *C[n];
