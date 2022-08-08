@@ -10,28 +10,35 @@ struct crystal_info {
 TH1F *strip_histo[42];   
 TF1 *strip_func[42];
 
-Double_t myfunc(Double_t *x, Double_t* p)
+Double_t fitGaussReject(Double_t *x, Double_t *par)
 {
- int t = p[0]; 
-  return strip_histo[t]->GetBinContent(x[0]);
-}  
+ Double_t mpv =par[1];
+ //Double_t mean =par[1];
+ Double_t norm = par[0];
+ Double_t sigma = par[2];
+ if(x[0]<=250 ||  x[0]>=750)
+ {
+   // return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+  return norm*TMath::Landau(x[0], mpv, sigma, false);
+  //return norm*ROOT::Math::Landau(x[0], sigma, mean);
+ }
+ else
+ {
+  TF1::RejectPoint();
+  return 0;
+ }
 
-Double_t deriv(Double_t *x, Double_t* p)
+}
+Double_t fitGaussAll(Double_t *x, Double_t *par)
 {
- 	int t = p[0]; 
-	double der, der2;
-	der = (strip_func[t]->Eval(x[0])-strip_func[t]->Eval(x[0]+1))/30;
-	der2 = (strip_func[t]->Eval(x[0]+2)-2*strip_func[t]->Eval(x[0]+1)+strip_func[t]->Eval(x[0]))/900;
-if((der<1 && der>1) && (der2<0.1 && der2>-0.1)){
-	cout<<"Przegiecie: "<<x[0]*30<<endl;
+ Double_t mpv = par[1];
+ //Double_t mean =par[1];
+ Double_t norm = par[0];
+ Double_t sigma = par[2];
+// return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
-if(p[1]==1)
-	return der;	
-else
- 	return der2;
 
-//return strip_func[t]->Derivative(x[0]);
-}
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
@@ -54,7 +61,7 @@ void rpc_analysis()
 	strs << i;
 	string tmp = strs.str();
 	char *name = (char *) tmp.c_str();
-	strip_histo[i] = new TH1F(name,name,50,0,1500);
+	strip_histo[i] = new TH1F(name,name,1500,0,1500);
 	
   }
 
@@ -154,18 +161,18 @@ int tmp1, tmp2, tmp3, tmp4, tmp5;
 	C[i]->Divide(3,2);
   }
   C1->cd();
-  strip_func[4] = new TF1("func", myfunc, 0, 50, 2);
-  strip_func[4]->SetParameter(0, 4);
-  TF1 *der = new TF1("der", deriv, 0, 50, 2);
-  der->SetParameter(0, 4);
-  der->SetParameter(1, 1);
-  TF1 *der2 = new TF1("der", deriv, 0, 50, 2);
-  der2->SetParameter(0, 4);
-  der2->SetParameter(1, 2);
+TF1 *fit = new TF1("fit", "fitGaussReject", 0.0, 1500.0, 3);
+fit->SetParameters(4000, strip_histo[4]->GetMaximum(), strip_histo[4]->GetRMS());
+//fit->SetParameters(4000, strip_histo[4]->GetMean(), strip_histo[4]->GetRMS());
+strip_histo[4]->Fit("fit", "RQN");
+
+TF1 *fitAll = new TF1("fitAll", "fitGaussAll", 0.0, 1500.0, 3);
+fitAll->SetParameters(fit->GetParameters());
+//strip_histo[4]->Fit("landau");
+strip_histo[4]->Draw("");
+fitAll->Draw("SAME");
+fit->Draw("SAME");
 //  Pos_histo->Draw("colz");
-  der->Draw("");
-  der2->Draw("SAME");
- // strip_func[4]->Draw("SAME");
 
 for(int i=0; i<n; i++)
 {
