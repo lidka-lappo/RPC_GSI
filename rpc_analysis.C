@@ -1,5 +1,4 @@
 using namespace std;
-
 struct crystal_info {
 
   Int_t fCrystalId;
@@ -8,12 +7,35 @@ struct crystal_info {
 
 };
 
+TH1F *strip_histo[42];   
+TF1 *strip_func[42];
 
+Double_t myfunc(Double_t *x, Double_t* p)
+{
+ int t = p[0]; 
+  return strip_histo[t]->GetBinContent(x[0]);
+}  
+
+Double_t deriv(Double_t *x, Double_t* p)
+{
+ 	int t = p[0]; 
+	double der, der2;
+	der = (strip_func[t]->Eval(x[0])-strip_func[t]->Eval(x[0]+1))/30;
+	der2 = (strip_func[t]->Eval(x[0]+2)-2*strip_func[t]->Eval(x[0]+1)+strip_func[t]->Eval(x[0]))/900;
+if((der<1 && der>1) && (der2<0.1 && der2>-0.1)){
+	cout<<"Przegiecie: "<<x[0]*30<<endl;
+}
+if(p[1]==1)
+	return der;	
+else
+ 	return der2;
+
+//return strip_func[t]->Derivative(x[0]);
+}
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
 }
-
 void rpc_analysis()
 {
 
@@ -22,9 +44,9 @@ void rpc_analysis()
  ///////////////////////////////////////////////////////////
  
   TH2F *Pos_histo = new TH2F("Position","Position",1500,0,1500,41,0,42);
-  TH1F *strip_histo[42];   
 
-  TH1F *strip_smooth[42];   
+//  TGraph *strips_[42];   
+
 
   for(int i =0; i <42; i ++)
   {
@@ -32,9 +54,8 @@ void rpc_analysis()
 	strs << i;
 	string tmp = strs.str();
 	char *name = (char *) tmp.c_str();
-	strip_histo[i] = new TH1F(name,name,150,0,1500);
-	strip_smooth[i] = new TH1F(name,name,300,0,1500);
-
+	strip_histo[i] = new TH1F(name,name,50,0,1500);
+	
   }
 
 /////////////////////////////////////////////////////////////////////
@@ -119,27 +140,7 @@ if(t%100000==0)
     }
    }
  }
-cout<<"kupa"<<endl;
 int tmp1, tmp2, tmp3, tmp4, tmp5;
-/*for(int i=0; i <42; i++)
-{
-	cout<<"Kupa "<<i<<endl;
-	for(int j=0; j<1500; j++)
-	{
-	tmp1 = strip_histo[i]->GetBinContent(j-2);
-	
-	tmp2 = strip_histo[i]->GetBinContent(j-1);
-	
-	tmp3 = strip_histo[i]->GetBinContent(j);
-	
-	tmp4 = strip_histo[i]->GetBinContent(j+1);
-	
-	tmp5 = strip_histo[i]->GetBinContent(j+2);
-	strip_smooth[i]->Fill((tmp1+tmp2+tmp3+tmp4+tmp5)/5);
-//	cout<<j;
-	}
-
-}*/
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n =1;
   TCanvas *C[n];
@@ -153,8 +154,19 @@ int tmp1, tmp2, tmp3, tmp4, tmp5;
 	C[i]->Divide(3,2);
   }
   C1->cd();
-  Pos_histo->Draw("colz");
-  
+  strip_func[4] = new TF1("func", myfunc, 0, 50, 2);
+  strip_func[4]->SetParameter(0, 4);
+  TF1 *der = new TF1("der", deriv, 0, 50, 2);
+  der->SetParameter(0, 4);
+  der->SetParameter(1, 1);
+  TF1 *der2 = new TF1("der", deriv, 0, 50, 2);
+  der2->SetParameter(0, 4);
+  der2->SetParameter(1, 2);
+//  Pos_histo->Draw("colz");
+  der->Draw("");
+  der2->Draw("SAME");
+ // strip_func[4]->Draw("SAME");
+
 for(int i=0; i<n; i++)
 {
 	for(int j=1; j<7; j++)
