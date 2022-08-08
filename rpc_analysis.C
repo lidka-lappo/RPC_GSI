@@ -169,11 +169,18 @@ strip_histo[4]->Fit("fit", "RQN");
 TF1 *fitAll = new TF1("fitAll", "fitGaussAll", 0.0, 1500.0, 3);
 fitAll->SetParameters(fit->GetParameters());
 //strip_histo[4]->Fit("landau");
-strip_histo[4]->Draw("");
-fitAll->Draw("SAME");
-fit->Draw("SAME");
+//strip_histo[4]->Draw("");
+//fitAll->Draw("SAME");
+//fit->Draw("SAME");
 //  Pos_histo->Draw("colz");
 
+TH1F* h1= new TH1F("h1", "h1", 1500, 0, 1500);
+for(int i =0; i<1500; i++)
+{
+ h1->SetBinContent(i+1, (fitAll->Eval(i)-strip_histo[4]->GetBinContent(i+1)));
+}
+
+h1->Draw();
 for(int i=0; i<n; i++)
 {
 	for(int j=1; j<7; j++)
