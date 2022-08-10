@@ -13,14 +13,14 @@ TF1 *fitAll[42];
 TH1F *hist_sub[42];
 Double_t fitGaussReject(Double_t *x, Double_t *par)
 {
-// Double_t mpv =par[1];
- Double_t mean =par[1];
  Double_t norm = par[0];
- Double_t sigma = par[2];
+ Double_t mpv =par[1];
+ Double_t mean =par[2];
+ Double_t sigma = par[3];
  if(x[0]<=250 ||  x[0]>=750)
  {
   return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- // return norm*TMath::Landau(x[0], mpv, sigma, false);
+ //return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
  else
  {
@@ -31,12 +31,12 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
 }
 Double_t fitGaussAll(Double_t *x, Double_t *par)
 {
- //Double_t mpv = par[1];
- Double_t mean =par[1];
  Double_t norm = par[0];
- Double_t sigma = par[2];
+ Double_t mpv = par[1];
+ Double_t mean =par[2];
+ Double_t sigma = par[3];
  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- //return norm*TMath::Landau(x[0], mpv, sigma, false);
+// return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
 double fmod_magic(double a, double b) {
@@ -148,7 +148,7 @@ if(t%100000==0)
    }
  }
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
-  int n =1;
+  int n =7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -170,12 +170,11 @@ for(int j =0; j<42; j++)
 	string tmp22 = strs2.str();
 	char *name1 = (char *) tmp11.c_str();
 	char *name2 = (char *) tmp22.c_str();
-	fit[j] = new TF1(name1, "fitGaussReject", 0.0, 1500.0, 3);
-	//fit[j]->SetParameters(4000, strip_histo[j]->GetMaximum(), strip_histo[j]->GetRMS());
-	fit[j]->SetParameters(4000, strip_histo[j]->GetMean(), strip_histo[j]->GetRMS());
+	fit[j] = new TF1(name1, "fitGaussReject", 0.0, 1500.0, 4);
+	fit[j]->SetParameters(4000,strip_histo[j]->GetMaximum(), strip_histo[j]->GetMean(), strip_histo[j]->GetRMS());
 	strip_histo[j]->Fit(name1, "RQN");
 
-	fitAll[j] = new TF1(name2, "fitGaussAll", 0.0, 1500.0, 3);
+	fitAll[j] = new TF1(name2, "fitGaussAll", 0.0, 1500.0, 4);
 	fitAll[j]->SetParameters(fit[j]->GetParameters());
 	//strip_histo[4]->Fit("landau");
 	//strip_histo[4]->Draw("");
@@ -188,16 +187,17 @@ for(int j =0; j<42; j++)
 	{
 		hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(i)-strip_histo[j]->GetBinContent(i+1)));
 	}
-
+	cout<<"max: "<<hist_sub[j]->GetMaximum()<<endl;;
 	//h1->Draw();
 }
 for(int i=0; i<n; i++)
 {
-	for(int j=1; j<7; j++)
+	for(int j=0; j<6; j++)
 	{
-		C[0]->cd(j);
-		strip_histo[i*6+j]->Draw("");
-	 	fitAll[i*6+j]->Draw("SAME");
+		C[i]->cd(j+1);
+		strip_histo[i*6+j+1]->Draw();
+	//	hist_sub[i*6+j+1]->Draw("SAME");
+	 	fitAll[i*6+j+1]->Draw("SAME");
 	}
 }
 
