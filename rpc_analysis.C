@@ -8,19 +8,19 @@ struct crystal_info {
 };
 
 TH1F *strip_histo[42];   
-TF1 *strip_func[42];
-
+TF1 *fit[42];
+TF1 *fitAll[42];
+TH1F *hist_sub[42];
 Double_t fitGaussReject(Double_t *x, Double_t *par)
 {
- Double_t mpv =par[1];
- //Double_t mean =par[1];
+// Double_t mpv =par[1];
+ Double_t mean =par[1];
  Double_t norm = par[0];
  Double_t sigma = par[2];
  if(x[0]<=250 ||  x[0]>=750)
  {
-   // return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-  return norm*TMath::Landau(x[0], mpv, sigma, false);
-  //return norm*ROOT::Math::Landau(x[0], sigma, mean);
+  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ // return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
  else
  {
@@ -31,12 +31,12 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
 }
 Double_t fitGaussAll(Double_t *x, Double_t *par)
 {
- Double_t mpv = par[1];
- //Double_t mean =par[1];
+ //Double_t mpv = par[1];
+ Double_t mean =par[1];
  Double_t norm = par[0];
  Double_t sigma = par[2];
-// return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- return norm*TMath::Landau(x[0], mpv, sigma, false);
+ return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ //return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
 double fmod_magic(double a, double b) {
@@ -147,10 +147,9 @@ if(t%100000==0)
     }
    }
  }
-int tmp1, tmp2, tmp3, tmp4, tmp5;
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n =1;
-  TCanvas *C[n];
+ TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
    	stringstream strs;
@@ -161,32 +160,44 @@ int tmp1, tmp2, tmp3, tmp4, tmp5;
 	C[i]->Divide(3,2);
   }
   C1->cd();
-TF1 *fit = new TF1("fit", "fitGaussReject", 0.0, 1500.0, 3);
-fit->SetParameters(4000, strip_histo[4]->GetMaximum(), strip_histo[4]->GetRMS());
-//fit->SetParameters(4000, strip_histo[4]->GetMean(), strip_histo[4]->GetRMS());
-strip_histo[4]->Fit("fit", "RQN");
-
-TF1 *fitAll = new TF1("fitAll", "fitGaussAll", 0.0, 1500.0, 3);
-fitAll->SetParameters(fit->GetParameters());
-//strip_histo[4]->Fit("landau");
-//strip_histo[4]->Draw("");
-//fitAll->Draw("SAME");
-//fit->Draw("SAME");
-//  Pos_histo->Draw("colz");
-
-TH1F* h1= new TH1F("h1", "h1", 1500, 0, 1500);
-for(int i =0; i<1500; i++)
+  Pos_histo->Draw("colz");
+for(int j =0; j<42; j++)
 {
- h1->SetBinContent(i+1, (fitAll->Eval(i)-strip_histo[4]->GetBinContent(i+1)));
-}
+   	stringstream strs1, strs2;
+	strs1 <<"fit"<< j;
+	strs2 <<"fitAll"<< j;
+	string tmp11 = strs1.str();
+	string tmp22 = strs2.str();
+	char *name1 = (char *) tmp11.c_str();
+	char *name2 = (char *) tmp22.c_str();
+	fit[j] = new TF1(name1, "fitGaussReject", 0.0, 1500.0, 3);
+	//fit[j]->SetParameters(4000, strip_histo[j]->GetMaximum(), strip_histo[j]->GetRMS());
+	fit[j]->SetParameters(4000, strip_histo[j]->GetMean(), strip_histo[j]->GetRMS());
+	strip_histo[j]->Fit(name1, "RQN");
 
-h1->Draw();
+	fitAll[j] = new TF1(name2, "fitGaussAll", 0.0, 1500.0, 3);
+	fitAll[j]->SetParameters(fit[j]->GetParameters());
+	//strip_histo[4]->Fit("landau");
+	//strip_histo[4]->Draw("");
+	//fitAll->Draw("SAME");
+	//fit->Draw("SAME");
+	//  Pos_histo->Draw("colz");
+
+	hist_sub[j]= new TH1F(name1, "h1", 1500, 0, 1500);
+	for(int i =0; i<1500; i++)
+	{
+		hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(i)-strip_histo[j]->GetBinContent(i+1)));
+	}
+
+	//h1->Draw();
+}
 for(int i=0; i<n; i++)
 {
 	for(int j=1; j<7; j++)
 	{
 		C[0]->cd(j);
 		strip_histo[i*6+j]->Draw("");
+	 	fitAll[i*6+j]->Draw("SAME");
 	}
 }
 
