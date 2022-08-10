@@ -7,8 +7,8 @@ struct crystal_info {
 
 };
 int nbin = 50;
-int minData = -500;
-int maxData = 2000;
+int minData = 0;
+int maxData = 1500;
 int minHist = 0;
 int maxHist = 1500;
 TH1F *strip_histo[42];   
@@ -43,6 +43,11 @@ Double_t fitGaussAll(Double_t *x, Double_t *par)
 // return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
+void moveHist(TH1F *pos, int shift)
+{
+	TAxis *a = pos->GetXaxis();
+	a->Set(a->GetNbins(), (a->GetXmin()+shift), (a->GetXmax()+shift));
+}
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
@@ -214,15 +219,24 @@ C[6]->cd(4);
 hist_sub[40]->Draw("");
 C[6]->cd(5);
 hist_sub[41]->Draw("");
+
+	int hmin = 200*nbin/(maxHist-minHist);
+	int hmax = 400*nbin/(maxHist-minHist);
+	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
+	hist_sub[29]->GetXaxis()->SetRange(hmin,hmax);
+	int ref = hist_sub[29]->GetMaximumBin();
 for(int j =30; j<42; j++)
 {
 	int hmin = 200*nbin/(maxHist-minHist);
 	int hmax = 400*nbin/(maxHist-minHist);
 	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
 	hist_sub[j]->GetXaxis()->SetRange(hmin,hmax);
-
-	cout<<j<<"max: "<<hist_sub[j]->GetMaximumBin()<<endl;;
+	
+	int shift =ref-(hist_sub[j]->GetMaximumBin());
+	cout<<j<<"max: "<<shift<<endl;;
 	hist_sub[j]->GetXaxis()->SetRange(1,nbin);
+	cout<<"moving hist"<< j << " for "<<shift<<endl;
+	moveHist(strip_histo[j],shift);
 } 
 
 timer.Stop();
