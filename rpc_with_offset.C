@@ -6,80 +6,54 @@ struct crystal_info {
   Float_t fPhi;
 
 };
-int nbin = 50;
-int minData = 0;
-int maxData = 1500;
+int nbin = 2500;
+int minData = -500;
+int maxData = 2000;
 int minHist = 0;
 int maxHist = 1500;
-TH1F *strip_histo[42];   
-TF1 *fit[42];
-TF1 *fitAll[42];
-TH1F *hist_sub[42];
-Double_t fitGaussReject(Double_t *x, Double_t *par)
-{
- Double_t norm = par[0];
- Double_t mpv =par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
- if(x[0]>=250 ||  x[0]>=750)
- {
-  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
- }
-else
- {
- TF1::RejectPoint();
- return 0;
-}
-
-}
-Double_t fitGaussAll(Double_t *x, Double_t *par)
-{
- Double_t norm = par[0];
- Double_t mpv = par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
- return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
-}
+int offset[41];
 
 void moveHist(TH1F *pos, int shift)
 {
 	TAxis *a = pos->GetXaxis();
 	a->Set(a->GetNbins(), (a->GetXmin()+shift), (a->GetXmax()+shift));
 }
+
+void offset_from_file()
+{
+	ifstream myfile;
+	myfile.open("offset.txt", ios::in|ios::out);
+	for(int i=0; i<41; i++)
+	{
+		int tmp;
+		myfile>>tmp;
+		offset[i]=tmp;
+		cout<<offset[i]<<endl;;		
+	}
+	myfile.close();
+}
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
 }
-void rpc_analysis()
+void rpc_with_offset()
 {
 
   TStopwatch timer;
   timer.Start();
  ///////////////////////////////////////////////////////////
- 
+offset_from_file();
   TH2F *Pos_histo = new TH2F("Position","Position",nbin,minData,maxData,41,0,42);
 
-//  TGraph *strips_[42];   
 
-
-  for(int i =0; i <42; i ++)
-  {
-   	stringstream strs;
-	strs << i;
-	string tmp = strs.str();
-	char *name = (char *) tmp.c_str();
-	strip_histo[i] = new TH1F(name,name,nbin,minHist,maxHist);
 	
-  }
 
 /////////////////////////////////////////////////////////////////////
 
 
   std::vector<TString> fileList;
 
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
 
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
  fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
@@ -149,95 +123,16 @@ if(t%100000==0)
     for(Int_t i = 0; i< nHits; i++){
      auto map1 = (R3BRpcHitData*)(hitCA->At(i));
      if(map1->GetDetId()==0){
-      Pos_histo->Fill(map1->GetPos(),map1->GetChannelId());
-      strip_histo[map1->GetChannelId()]->Fill(map1->GetPos());
+      int strip = map1->GetChannelId();
+      Pos_histo->Fill(offset[strip-1]+map1->GetPos(),strip);
      }
 
     }
    }
  }
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
-  int n= 7;
- TCanvas *C[n];
-  for (int i=0; i<n; i++)
-  {
-   	stringstream strs;
-	strs << i;
-	string tmp = strs.str();
-	char *name = (char *) tmp.c_str();
-	C[i] = new TCanvas(name,name,1500,600);
-	C[i]->Divide(3,2);
-  }
   C1->cd();
   Pos_histo->Draw("colz");
-for(int j =0; j<42; j++)
-{
-   	stringstream strs1, strs2;
-	strs1 <<"fit"<< j;
-	strs2 <<"fitAll"<< j;
-	string tmp11 = strs1.str();
-	string tmp22 = strs2.str();
-	char *name1 = (char *) tmp11.c_str();
-	char *name2 = (char *) tmp22.c_str();
-	fit[j] = new TF1(name1, "fitGaussReject", minHist, maxHist, 4);
-	fit[j]->SetParameters(4000,strip_histo[j]->GetMaximum(), strip_histo[j]->GetMean(), strip_histo[j]->GetRMS());
-	strip_histo[j]->Fit(name1, "RQN");
-
-	fitAll[j] = new TF1(name2, "fitGaussAll", minHist, maxHist, 4);
-	fitAll[j]->SetParameters(fit[j]->GetParameters());
-	//strip_histo[4]->Fit("landau");
-	//strip_histo[4]->Draw("");
-	//fitAll->Draw("SAME");
-	//fit->Draw("SAME");
-	//  Pos_histo->Draw("colz");
-
-	hist_sub[j]= new TH1F(name1, "h1", nbin, minHist, maxHist);
-	for(int i =0; i<nbin; i++)
-	{
-		hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(i*30)-strip_histo[j]->GetBinContent(i+1)));
-	}
-	//h1->Draw();
-}
-for(int i=0; i<(n-1); i++)
-{
-	for(int j=0; j<6; j++)
-	{
-		C[i]->cd(j+1);
-//		strip_histo[i*6+j+1]->Draw();
-		hist_sub[i*6+j+1]->Draw("");
-	// 	fitAll[i*6+j+1]->Draw("SAME");
-	}
-}
-
-C[6]->cd(1);
-hist_sub[37]->Draw("");
-C[6]->cd(2);
-hist_sub[38]->Draw("");
-C[6]->cd(3);
-hist_sub[39]->Draw("");
-C[6]->cd(4);
-hist_sub[40]->Draw("");
-C[6]->cd(5);
-hist_sub[41]->Draw("");
-
-	int hmin = 200*nbin/(maxHist-minHist);
-	int hmax = 400*nbin/(maxHist-minHist);
-	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
-	hist_sub[20]->GetXaxis()->SetRange(hmin,hmax);
-	int ref = hist_sub[20]->GetMaximumBin();
-for(int j =1; j<42; j++)
-{
-	int hmin = 200*nbin/(maxHist-minHist);
-	int hmax = 400*nbin/(maxHist-minHist);
-	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
-	hist_sub[j]->GetXaxis()->SetRange(hmin,hmax);
-	
-	int shift =ref-(hist_sub[j]->GetMaximumBin());
-	cout<<j<<"max: "<<shift<<endl;;
-	hist_sub[j]->GetXaxis()->SetRange(1,nbin);
-	cout<<"moving hist"<< j << " for "<<shift<<endl;
-	moveHist(strip_histo[j],shift);
-} 
 
 timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -252,7 +147,7 @@ timer.Stop();
 # ifndef __CINT__
 int main(int argc, char **argv){
 	TApplication app("app",&argc,argv);
-	rpc_analysis();
+	rpc_with_offset();
 	app.Run();
 	return 0 ;
 }
