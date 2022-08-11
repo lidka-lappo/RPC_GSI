@@ -218,15 +218,22 @@ fstream myfile;
 myfile.open("offset.txt", ios::out);
 for(int j =1; j<42; j++)
 {
-	cout<<j<<"wire: "<<15*(54+hist_sub[j]->GetMaximumBin())<<endl;
 	int shift =ref-(hist_sub[j]->GetMaximumBin());
 	if(abs(shift)>10)
 	{
 	shift=0;	
-	cout<<"OK"<<endl;
+	cout<<"Strip to fix "<<j<<endl;
 	//hist_sub[j]->GetXaxis()->SetRange(795,900);
 	//hist_sub[j]->GetXaxis()->SetRange(795,hmax);
 	}
+	if(j==6)
+	{	
+		hist_sub[j]->GetXaxis()->SetRange(4,46);
+		
+		shift =ref-(hist_sub[j]->GetMaximumBin());
+
+	}
+	cout<<j<<"wire: "<<15*(54+ref+shift)<<endl;
 	shift=shift*15;
 //	cout<<shift<<endl;
 	myfile<<shift<<endl;
