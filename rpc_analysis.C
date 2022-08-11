@@ -6,7 +6,7 @@ struct crystal_info {
   Float_t fPhi;
 
 };
-int nbin = 50;
+int nbin = 1500;
 int minData = 0;
 int maxData = 1500;
 int minHist = 0;
@@ -23,8 +23,8 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
  Double_t sigma = par[3];
  if(x[0]>=250 ||  x[0]>=750)
  {
-  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
+//  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
 else
  {
@@ -39,15 +39,10 @@ Double_t fitGaussAll(Double_t *x, Double_t *par)
  Double_t mpv = par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
- return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
+// return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
-void moveHist(TH1F *pos, int shift)
-{
-	TAxis *a = pos->GetXaxis();
-	a->Set(a->GetNbins(), (a->GetXmin()+shift), (a->GetXmax()+shift));
-}
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
@@ -156,8 +151,8 @@ if(t%100000==0)
     }
    }
  }
-  TCanvas *C1 = new TCanvas("C1","C1",600,800);
-  int n= 7;
+ // TCanvas *C1 = new TCanvas("C1","C1",600,800);
+  int n= 1;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -168,8 +163,8 @@ if(t%100000==0)
 	C[i] = new TCanvas(name,name,1500,600);
 	C[i]->Divide(3,2);
   }
-  C1->cd();
-  Pos_histo->Draw("colz");
+ // C1->cd();
+ // Pos_histo->Draw("colz");
 for(int j =0; j<42; j++)
 {
    	stringstream strs1, strs2;
@@ -198,47 +193,36 @@ for(int j =0; j<42; j++)
 	}
 	//h1->Draw();
 }
-for(int i=0; i<(n-1); i++)
+for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
-		C[i]->cd(j+1);
-//		strip_histo[i*6+j+1]->Draw();
-		hist_sub[i*6+j+1]->Draw("");
-	// 	fitAll[i*6+j+1]->Draw("SAME");
+		if(i!=6&&j!=5){
+			C[i]->cd(j+1);
+			strip_histo[i*6+j+1]->Draw();
+			//hist_sub[i*6+j+1]->Draw("");
+	 		fitAll[i*6+j+1]->Draw("SAME");
+		}
 	}
 }
 
-C[6]->cd(1);
-hist_sub[37]->Draw("");
-C[6]->cd(2);
-hist_sub[38]->Draw("");
-C[6]->cd(3);
-hist_sub[39]->Draw("");
-C[6]->cd(4);
-hist_sub[40]->Draw("");
-C[6]->cd(5);
-hist_sub[41]->Draw("");
 
 	int hmin = 200*nbin/(maxHist-minHist);
 	int hmax = 400*nbin/(maxHist-minHist);
-	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
 	hist_sub[20]->GetXaxis()->SetRange(hmin,hmax);
 	int ref = hist_sub[20]->GetMaximumBin();
+	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
+	cout<<"Ref: " <<ref<<endl;
+fstream myfile;
+myfile.open("offset.txt", ios::out);
 for(int j =1; j<42; j++)
 {
-	int hmin = 200*nbin/(maxHist-minHist);
-	int hmax = 400*nbin/(maxHist-minHist);
-	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
 	hist_sub[j]->GetXaxis()->SetRange(hmin,hmax);
-	
 	int shift =ref-(hist_sub[j]->GetMaximumBin());
-	cout<<j<<"max: "<<shift<<endl;;
+	myfile<<shift<<endl;
 	hist_sub[j]->GetXaxis()->SetRange(1,nbin);
-	cout<<"moving hist"<< j << " for "<<shift<<endl;
-	moveHist(strip_histo[j],shift);
 } 
-
+myfile.close();
 timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
