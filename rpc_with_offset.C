@@ -12,13 +12,6 @@ int maxData = 2000;
 int minHist = 0;
 int maxHist = 1500;
 int offset[41];
-
-void moveHist(TH1F *pos, int shift)
-{
-	TAxis *a = pos->GetXaxis();
-	a->Set(a->GetNbins(), (a->GetXmin()+shift), (a->GetXmax()+shift));
-}
-
 void offset_from_file()
 {
 	ifstream myfile;

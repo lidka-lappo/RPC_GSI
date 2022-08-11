@@ -6,7 +6,7 @@ struct crystal_info {
   Float_t fPhi;
 
 };
-int nbin = 1500;
+int nbin = 100;
 int minData = 0;
 int maxData = 1500;
 int minHist = 0;
@@ -21,10 +21,10 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
  Double_t mpv =par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
- if(x[0]>=250 ||  x[0]>=750)
+if( x[0]>=800)
  {
-//  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- return norm*TMath::Landau(x[0], mpv, sigma, false);
+  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+// return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
 else
  {
@@ -39,8 +39,8 @@ Double_t fitGaussAll(Double_t *x, Double_t *par)
  Double_t mpv = par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
-// return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- return norm*TMath::Landau(x[0], mpv, sigma, false);
+ return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+// return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
 double fmod_magic(double a, double b) {
@@ -152,7 +152,7 @@ if(t%100000==0)
    }
  }
  // TCanvas *C1 = new TCanvas("C1","C1",600,800);
-  int n= 1;
+  int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -186,10 +186,11 @@ for(int j =0; j<42; j++)
 	//fit->Draw("SAME");
 	//  Pos_histo->Draw("colz");
 
-	hist_sub[j]= new TH1F(name1, "h1", nbin, minHist, maxHist);
-	for(int i =0; i<nbin; i++)
+	//hist_sub[j]= new TH1F(name1, "h1", nbin, minHist, maxHist);
+	hist_sub[j]= new TH1F(name1, "h1", 47, 795, maxHist);
+	for(int i =0; i<47; i++)
 	{
-		hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(i*30)-strip_histo[j]->GetBinContent(i+1)));
+	hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(795+i*15)-strip_histo[j]->GetBinContent(i+54)));
 	}
 	//h1->Draw();
 }
@@ -197,30 +198,38 @@ for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
-		if(i!=6&&j!=5){
+		if(i!=6||j!=5){
 			C[i]->cd(j+1);
-			strip_histo[i*6+j+1]->Draw();
-			//hist_sub[i*6+j+1]->Draw("");
-	 		fitAll[i*6+j+1]->Draw("SAME");
+		//	strip_histo[i*6+j+1]->Draw();
+			hist_sub[i*6+j+1]->Draw("");
+	 	//	fitAll[i*6+j+1]->Draw("SAME");
 		}
 	}
 }
 
 
-	int hmin = 200*nbin/(maxHist-minHist);
-	int hmax = 400*nbin/(maxHist-minHist);
-	hist_sub[20]->GetXaxis()->SetRange(hmin,hmax);
-	int ref = hist_sub[20]->GetMaximumBin();
-	cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
-	cout<<"Ref: " <<ref<<endl;
+	//int hmin = 200*nbin/(maxHist-minHist);
+	//int hmax = 400*nbin/(maxHist-minHist);
+	//hist_sub[2]->GetXaxis()->SetRange(hmin,hmax);
+	int ref = hist_sub[2]->GetMaximumBin();
+	//cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
+	cout<<"Ref: " <<ref+54<<endl;
 fstream myfile;
 myfile.open("offset.txt", ios::out);
 for(int j =1; j<42; j++)
 {
-	hist_sub[j]->GetXaxis()->SetRange(hmin,hmax);
+	cout<<j<<"wire: "<<15*(54+hist_sub[j]->GetMaximumBin())<<endl;
 	int shift =ref-(hist_sub[j]->GetMaximumBin());
+	if(abs(shift)>10)
+	{
+	shift=0;	
+	cout<<"OK"<<endl;
+	//hist_sub[j]->GetXaxis()->SetRange(795,900);
+	//hist_sub[j]->GetXaxis()->SetRange(795,hmax);
+	}
+	shift=shift*15;
+//	cout<<shift<<endl;
 	myfile<<shift<<endl;
-	hist_sub[j]->GetXaxis()->SetRange(1,nbin);
 } 
 myfile.close();
 timer.Stop();
