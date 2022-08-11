@@ -77,8 +77,8 @@ void rpc_analysis()
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
 
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st2204607926.root");
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
@@ -200,9 +200,9 @@ for(int i=0; i<n; i++)
 	{
 		if(i!=6||j!=5){
 			C[i]->cd(j+1);
-		//	strip_histo[i*6+j+1]->Draw();
-			hist_sub[i*6+j+1]->Draw("");
-	 	//	fitAll[i*6+j+1]->Draw("SAME");
+			strip_histo[i*6+j+1]->Draw();
+			hist_sub[i*6+j+1]->Draw("SAME");
+	 		fitAll[i*6+j+1]->Draw("SAME");
 		}
 	}
 }
@@ -215,7 +215,7 @@ for(int i=0; i<n; i++)
 	//cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
 	cout<<"Ref: " <<ref+54<<endl;
 fstream myfile;
-myfile.open("offset.txt", ios::out);
+myfile.open("offset1.txt", ios::out);
 for(int j =1; j<42; j++)
 {
 	int shift =ref-(hist_sub[j]->GetMaximumBin());

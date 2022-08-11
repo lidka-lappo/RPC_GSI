@@ -15,7 +15,7 @@ int offset[41];
 void offset_from_file()
 {
 	ifstream myfile;
-	myfile.open("offset.txt", ios::in|ios::out);
+	myfile.open("offset1.txt", ios::in|ios::out);
 	for(int i=0; i<41; i++)
 	{
 		int tmp;
