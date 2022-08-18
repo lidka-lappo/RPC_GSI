@@ -17,6 +17,43 @@ TF1 *fitAll[42];
 TH1F *hist_sub[42];
 int offset[41];
 
+void calc_pik(TH1F **strip_histo, TString fileList)
+{
+	int newnBin = 47;
+	int newMinHist = 795;
+int posY=0;
+int posX=0;
+double tmpMax=0;
+for(int j =1; j<42; j++)
+{
+strip_histo[j]->Scale(1.0/strip_histo[j]->Integral());
+//int tmp=strip_histo_low[j]->ShowPeaks(0.1, "nobackground", 0.7); //0.1-0.001
+//int tmp=strip_histo[j]->ShowPeaks(0.1, "", 0.5); //0.1-0.001
+//cout<<j<<":"<<tmp<<endl;
+if(j>3){
+	if(j<30)
+	{
+		if(tmpMax<strip_histo[j]->GetMaximum())
+		{
+			posY=j;
+			//TList *fun = Pos_histo->GetListOfFunctions();
+			//TPolyMarker *pm = (TPolyMarker*)fun->FindObject("TPolyMarker");
+			//cout<<"(x:y) ("<<pm[0].GetX()<<" : "<<pm[0].GetY()<<")"<<endl;
+			posX=strip_histo[j]->GetMaximumBin();
+			tmpMax=strip_histo[j]->GetMaximum();
+			cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+
+		}
+	}
+}
+}
+fstream myfile1;
+myfile1.open("dataAll.txt", ios::app);
+ myfile1<<"File : "<<fileList<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+myfile1<<"strip: "<< posY <<endl;
+myfile1.close();
+cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
+}
 void offset_from_file()
 {
 	ifstream myfile;
@@ -89,29 +126,29 @@ void rpc_pik_searching()
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
 //
 //short
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 //measures
 //down
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+ //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
 //
 //
 
 //up
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
-  fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
+//  fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
  for(int s = 0 ; s < fileList.size() ; s++){
   TFile *eventFile;
   TTree *eventTree;
  
-TH1F *strip_histo[41];   
+TH1F *strip_histo[42];   
   for(int i =0; i <42; i ++)
   {
    	stringstream strs;
@@ -181,47 +218,13 @@ if(t%100000==0)
       int strip = map1->GetChannelId();
       Pos_histo->Fill(offset[strip-1]+map1->GetPos(),strip);
       strip_histo[strip]->Fill(offset[strip-1]+map1->GetPos());
-      strip_histo_low[strip]->Fill(offset[strip-1]+map1->GetPos());
+   //   strip_histo_low[strip]->Fill(offset[strip-1]+map1->GetPos());
      }
 
     }
    }
- 
-	int newnBin = 47;
-	int newMinHist = 795;
-int posY=0;
-int posX=0;
-double tmpMax=0;
-for(int j =1; j<42; j++)
-{
-strip_histo[j]->Scale(1.0/strip_histo[j]->Integral());
-//int tmp=strip_histo_low[j]->ShowPeaks(0.1, "nobackground", 0.7); //0.1-0.001
-//int tmp=strip_histo[j]->ShowPeaks(0.1, "", 0.5); //0.1-0.001
-//cout<<j<<":"<<tmp<<endl;
-if(j>3){
-	if(j<30)
-	{
-		if(tmpMax<strip_histo[j]->GetMaximum())
-		{
-			posY=j;
-			//TList *fun = Pos_histo->GetListOfFunctions();
-			//TPolyMarker *pm = (TPolyMarker*)fun->FindObject("TPolyMarker");
-			//cout<<"(x:y) ("<<pm[0].GetX()<<" : "<<pm[0].GetY()<<")"<<endl;
-			posX=strip_histo[j]->GetMaximumBin();
-			tmpMax=strip_histo[j]->GetMaximum();
-			cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
 
-		}
-	}
-}
-}
-fstream myfile1;
-myfile1.open("dataAll.txt", ios::app);
- myfile1<<"File : "<<fileList.at(s)<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
-myfile1<<"strip: "<< posY <<endl;
-myfile1.close();
-cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
-
+calc_pik(strip_histo, fileList.at(s));
 }
 //Int_t pik = Pos_histo->ShowPeaks(10,"",0.05);
 //cout<<"pik "<<pik<<endl;
