@@ -16,7 +16,8 @@ TF1 *fit[42];
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
 int offset[41];
-
+//Double_t *peaktmp;
+TH1F *strip_histo[42];   
 void calc_pik(TH1F **strip_histo, TString fileList)
 {
 	int newnBin = 47;
@@ -27,22 +28,62 @@ double tmpMax=0;
 for(int j =1; j<42; j++)
 {
 strip_histo[j]->Scale(1.0/strip_histo[j]->Integral());
-//int tmp=strip_histo_low[j]->ShowPeaks(0.1, "nobackground", 0.7); //0.1-0.001
+//strip_histo[j]->Scale(1.0/strip_histo[j]->GetEntries());
+//strip_histo[j]->Smooth(100);
 //int tmp=strip_histo[j]->ShowPeaks(0.1, "", 0.5); //0.1-0.001
-//cout<<j<<":"<<tmp<<endl;
-if(j>3){
-	if(j<30)
-	{
-		if(tmpMax<strip_histo[j]->GetMaximum())
-		{
-			posY=j;
-			//TList *fun = Pos_histo->GetListOfFunctions();
-			//TPolyMarker *pm = (TPolyMarker*)fun->FindObject("TPolyMarker");
-			//cout<<"(x:y) ("<<pm[0].GetX()<<" : "<<pm[0].GetY()<<")"<<endl;
-			posX=strip_histo[j]->GetMaximumBin();
-			tmpMax=strip_histo[j]->GetMaximum();
-			cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+}
 
+TH1F *tmphist[42];
+//TH1F *tmphist = new TH1F("h","h",nbin,minHist,maxHist);
+for(int i=1; i<42; i++)
+{
+
+   	stringstream strs;
+	strs << i<<"tmpsub";
+	string tmp = strs.str();
+	char *name = (char *) tmp.c_str();
+tmphist[i] = new TH1F(name,name,nbin,minHist,maxHist);
+tmphist[i]->Add(strip_histo[i], 1);
+}	
+for(int j=2; j<42; j++)
+{
+
+strip_histo[j]->Add(tmphist[j-1], -1);
+int nPeaks=strip_histo[j]->ShowPeaks(0.01, "", 0.3); //0.1-0.001
+cout<<j<<":"<<nPeaks<<endl;
+
+
+/*for(int i  =0; i<nPeaks; i++)
+{	
+if(nPeaks<5)
+{
+
+	cout<<"peak"<<j<<":"<<i<<":"<<peaktmp[i]<<endl; 
+
+}
+}*/
+
+if(nPeaks!=0){
+	
+	Double_t *peaktmp;
+	TList *functions=strip_histo[j]->GetListOfFunctions();
+	TPolyMarker *pm = (TPolyMarker*)functions->FindObject("TPolyMarker");
+	peaktmp=pm->GetX();
+	if(j>3  && j<30)
+	{
+		
+		for(int i  =0; i<nPeaks; i++)
+		{
+			Double_t xp = peaktmp[i];
+			int bin = strip_histo[j]->GetXaxis()->FindBin(xp);
+			Double_t yp =strip_histo[j]->GetBinContent(bin);
+			if(tmpMax<yp)
+			{
+				posY=j;
+				posX=xp;
+				tmpMax=yp;
+				cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+			}
 		}
 	}
 }
@@ -54,6 +95,7 @@ myfile1<<"strip: "<< posY <<endl;
 myfile1.close();
 cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
 }
+
 void offset_from_file()
 {
 	ifstream myfile;
@@ -74,10 +116,10 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
  Double_t mpv =par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
-if( x[0]>=800)
+if( x[0]>=0)
  {
-  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
+  //return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
 else
  {
@@ -126,11 +168,11 @@ void rpc_pik_searching()
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
 //
 //short
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 //measures
 //down
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
@@ -148,7 +190,7 @@ void rpc_pik_searching()
   TFile *eventFile;
   TTree *eventTree;
  
-TH1F *strip_histo[42];   
+//TH1F *strip_histo[42];   
   for(int i =0; i <42; i ++)
   {
    	stringstream strs;
@@ -201,7 +243,8 @@ TH1F *strip_histo[42];
   Int_t goodP2P = 0;
   Float_t fEnergy,fTheta2,fTheta1,fPhi1,fPhi2,fEnergy1,fEnergy2,openingAngle;
 
-  for(Int_t t = 0; t< nEvents; t++){
+  //for(Int_t t = 0; t< nEvents; t++){
+  for(Int_t t = 0; t< 5000000; t++){
    hitCA->Clear();
 if(t%100000==0)
 	cout<<t<<endl;	 
@@ -224,7 +267,7 @@ if(t%100000==0)
     }
    }
 
-calc_pik(strip_histo, fileList.at(s));
+//calc_pik(strip_histo, fileList.at(s));
 }
 //Int_t pik = Pos_histo->ShowPeaks(10,"",0.05);
 //cout<<"pik "<<pik<<endl;
@@ -235,7 +278,7 @@ calc_pik(strip_histo, fileList.at(s));
 //cout<<"(x:y) ("<<pm[0].GetX()<<" : "<<pm[0].GetY()<<")"<<endl;
 //} 
 TCanvas *C1 = new TCanvas("C1","C1",600,800);
-/*  int n= 7;
+  int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -245,11 +288,13 @@ TCanvas *C1 = new TCanvas("C1","C1",600,800);
 	char *name = (char *) tmp.c_str();
 	C[i] = new TCanvas(name,name,1500,600);
 	C[i]->Divide(3,2);
-  }*/
+  }
  C1->cd();
  Pos_histo->Draw("COLZ");
-//C[0]->cd(1);
-/*
+C[0]->cd(1);
+
+calc_pik(strip_histo, "XD");
+
 for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
@@ -257,10 +302,11 @@ for(int i=0; i<n; i++)
 		if(i!=6||j!=5){
 			C[i]->cd(j+1);
 			strip_histo[i*6+j+1]->Draw();
+			//fit[j]->Draw("SAME");
 			//strip_histo_low[i*6+j+1]->Draw();
 		}
 	}
-}*/
+}
 
 
 timer.Stop();
