@@ -16,7 +16,6 @@ TF1 *fit[42];
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
 int offset[41];
-//Double_t *peaktmp;
 TH1F *strip_histo[42];   
 void calc_pik(TH1F **strip_histo, TString fileList)
 {
@@ -25,73 +24,54 @@ void calc_pik(TH1F **strip_histo, TString fileList)
 int posY=0;
 int posX=0;
 double tmpMax=0;
-for(int j =1; j<42; j++)
-{
-strip_histo[j]->Scale(1.0/strip_histo[j]->Integral());
-//strip_histo[j]->Scale(1.0/strip_histo[j]->GetEntries());
-//strip_histo[j]->Smooth(100);
-//int tmp=strip_histo[j]->ShowPeaks(0.1, "", 0.5); //0.1-0.001
-}
 
 TH1F *tmphist[42];
-//TH1F *tmphist = new TH1F("h","h",nbin,minHist,maxHist);
 for(int i=1; i<42; i++)
 {
 
+	strip_histo[i]->Scale(1.0/strip_histo[i]->Integral());
    	stringstream strs;
 	strs << i<<"tmpsub";
 	string tmp = strs.str();
 	char *name = (char *) tmp.c_str();
-tmphist[i] = new TH1F(name,name,nbin,minHist,maxHist);
-tmphist[i]->Add(strip_histo[i], 1);
+	tmphist[i] = new TH1F(name,name,nbin,minHist,maxHist);
+	tmphist[i]->Add(strip_histo[i], 1);
 }	
+
 for(int j=2; j<42; j++)
 {
 
-strip_histo[j]->Add(tmphist[j-1], -1);
-int nPeaks=strip_histo[j]->ShowPeaks(0.01, "", 0.3); //0.1-0.001
-cout<<j<<":"<<nPeaks<<endl;
+//	strip_histo[j]->Add(tmphist[j-1], -1);
+	int nPeaks=strip_histo[j]->ShowPeaks(0.01, "", 0.3); //0.1-0.001
 
-
-/*for(int i  =0; i<nPeaks; i++)
-{	
-if(nPeaks<5)
-{
-
-	cout<<"peak"<<j<<":"<<i<<":"<<peaktmp[i]<<endl; 
-
-}
-}*/
-
-if(nPeaks!=0){
+	if(nPeaks!=0){
 	
-	Double_t *peaktmp;
-	TList *functions=strip_histo[j]->GetListOfFunctions();
-	TPolyMarker *pm = (TPolyMarker*)functions->FindObject("TPolyMarker");
-	peaktmp=pm->GetX();
-	if(j>3  && j<30)
-	{
-		
-		for(int i  =0; i<nPeaks; i++)
+		Double_t *peaktmp;
+		TList *functions=strip_histo[j]->GetListOfFunctions();
+		TPolyMarker *pm = (TPolyMarker*)functions->FindObject("TPolyMarker");
+		peaktmp=pm->GetX();
+		if(j>3  && j<20)
 		{
-			Double_t xp = peaktmp[i];
-			int bin = strip_histo[j]->GetXaxis()->FindBin(xp);
-			Double_t yp =strip_histo[j]->GetBinContent(bin);
-			if(tmpMax<yp)
+			for(int i  =0; i<nPeaks; i++)
 			{
-				posY=j;
-				posX=xp;
-				tmpMax=yp;
-				cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+				Double_t xp = peaktmp[i];
+				int bin = strip_histo[j]->GetXaxis()->FindBin(xp);
+				Double_t yp =strip_histo[j]->GetBinContent(bin);
+				if(tmpMax<yp)
+				{
+					posY=j;
+					posX=xp;
+					tmpMax=yp;
+					cout<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
+				}
 			}
 		}
 	}
 }
-}
 fstream myfile1;
-myfile1.open("dataAll.txt", ios::app);
- myfile1<<"File : "<<fileList<<" ("<<posX<<" : "<<posY*30<<")"<<endl;
-myfile1<<"strip: "<< posY <<endl;
+myfile1.open("data.txt", ios::app);
+myfile1<<"File: "<<fileList<<"("<<posX<<":"<<posY*30<<") "<<endl;
+//myfile1<<"strip: "<< posY <<endl;
 myfile1.close();
 cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
 }
@@ -110,39 +90,11 @@ void offset_from_file()
 	myfile.close();
 }
 
-Double_t fitGaussReject(Double_t *x, Double_t *par)
-{
- Double_t norm = par[0];
- Double_t mpv =par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
-if( x[0]>=0)
- {
-  //return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- return norm*TMath::Landau(x[0], mpv, sigma, false);
- }
-else
- {
- TF1::RejectPoint();
- return 0;
-}
-
-}
-Double_t fitGaussAll(Double_t *x, Double_t *par)
-{
- Double_t norm = par[0];
- Double_t mpv = par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
- return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
-}
-
 double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
 }
-void rpc_pik_searching()
+void rpc_peak_searching()
 {
 
   TStopwatch timer;
@@ -152,7 +104,6 @@ void rpc_pik_searching()
   offset_from_file();
   TH2F *Pos_histo = new TH2F("Position","Position",nbin,minData,maxData,41,0,42);
 
-//  TGraph *strips_[42];   
 
 
 
@@ -168,22 +119,22 @@ void rpc_pik_searching()
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
 //
 //short
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+ //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 //measures
 //down
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
 //
 //
 
 //up
 // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
-//  fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
+ //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
+ // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
  for(int s = 0 ; s < fileList.size() ; s++){
@@ -243,8 +194,8 @@ void rpc_pik_searching()
   Int_t goodP2P = 0;
   Float_t fEnergy,fTheta2,fTheta1,fPhi1,fPhi2,fEnergy1,fEnergy2,openingAngle;
 
-  //for(Int_t t = 0; t< nEvents; t++){
-  for(Int_t t = 0; t< 5000000; t++){
+  for(Int_t t = 0; t< nEvents; t++){
+  //for(Int_t t = 0; t< 5000000; t++){
    hitCA->Clear();
 if(t%100000==0)
 	cout<<t<<endl;	 
@@ -261,7 +212,6 @@ if(t%100000==0)
       int strip = map1->GetChannelId();
       Pos_histo->Fill(offset[strip-1]+map1->GetPos(),strip);
       strip_histo[strip]->Fill(offset[strip-1]+map1->GetPos());
-   //   strip_histo_low[strip]->Fill(offset[strip-1]+map1->GetPos());
      }
 
     }
@@ -269,14 +219,6 @@ if(t%100000==0)
 
 //calc_pik(strip_histo, fileList.at(s));
 }
-//Int_t pik = Pos_histo->ShowPeaks(10,"",0.05);
-//cout<<"pik "<<pik<<endl;
-//TList *fun = Pos_histo->GetListOfFunctions();
-//if(pik!=0)
-//{
-//TPolyMarker *pm = (TPolyMarker*)fun->FindObject("TPolyMarker");
-//cout<<"(x:y) ("<<pm[0].GetX()<<" : "<<pm[0].GetY()<<")"<<endl;
-//} 
 TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n= 7;
  TCanvas *C[n];
@@ -290,7 +232,7 @@ TCanvas *C1 = new TCanvas("C1","C1",600,800);
 	C[i]->Divide(3,2);
   }
  C1->cd();
- Pos_histo->Draw("COLZ");
+Pos_histo->Draw("COLZ");
 C[0]->cd(1);
 
 calc_pik(strip_histo, "XD");
@@ -302,8 +244,6 @@ for(int i=0; i<n; i++)
 		if(i!=6||j!=5){
 			C[i]->cd(j+1);
 			strip_histo[i*6+j+1]->Draw();
-			//fit[j]->Draw("SAME");
-			//strip_histo_low[i*6+j+1]->Draw();
 		}
 	}
 }
@@ -322,7 +262,7 @@ timer.Stop();
 # ifndef __CINT__
 int main(int argc, char **argv){
 	TApplication app("app",&argc,argv);
-	rpc_pik_searching();
+	rpc_peak_searching();
 	app.Run();
 	return 0 ;
 }
