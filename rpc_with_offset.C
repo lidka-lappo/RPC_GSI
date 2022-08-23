@@ -6,21 +6,21 @@ struct crystal_info {
   Float_t fPhi;
 
 };
-int nbin = 2500;
-int minData = -500;
-int maxData = 2000;
+int nbin = 1500;
+int minData = 0;
+int maxData = 1500;
 int minHist = 0;
 int maxHist = 1500;
 int offset[41];
 void offset_from_file()
 {
 	ifstream myfile;
-	myfile.open("offset_test.xt", ios::in|ios::out);
+	myfile.open("offset_back.txt", ios::in|ios::out);
 	for(int i=0; i<41; i++)
 	{
 		int tmp;
 		myfile>>tmp;
-		offset[i]=tmp;
+		offset[i]=tmp-50;
 		cout<<offset[i]<<endl;;		
 	}
 	myfile.close();
@@ -45,26 +45,32 @@ offset_from_file();
 
 
   std::vector<TString> fileList;
-
+//backgroound
 // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
-
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
- // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
-
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
-
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
-
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046083458.root");
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
+//little
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046050208.root");
+//
+//fallen onece
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
+
+//down
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
+
+
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
+//  fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
+
+
+
  for(int s = 0 ; s < fileList.size() ; s++){
   TFile *eventFile;
   TTree *eventTree;
@@ -129,6 +135,9 @@ if(t%100000==0)
  }
   TCanvas *C1 = new TCanvas("C1","C1",600,800);
   C1->cd();
+  Pos_histo->SetTitle("RPC detections");
+  Pos_histo->GetXaxis()->SetTitle("X position");
+  Pos_histo->GetYaxis()->SetTitle("Strip number");
   Pos_histo->Draw("colz");
 
 timer.Stop();

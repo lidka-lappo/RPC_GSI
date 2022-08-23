@@ -16,7 +16,7 @@ TF1 *fit[42];
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
 int offset[41];
-TH1F *strip_histo[42];   
+//TH1F *strip_histo[42];   
 void calc_pik(TH1F **strip_histo, TString fileList)
 {
 	int newnBin = 47;
@@ -69,7 +69,7 @@ for(int j=2; j<42; j++)
 	}
 }
 fstream myfile1;
-myfile1.open("data.txt", ios::app);
+myfile1.open("dataUltimate.txt", ios::app);
 myfile1<<"File: "<<fileList<<"("<<posX<<":"<<posY*30<<") "<<endl;
 //myfile1<<"strip: "<< posY <<endl;
 myfile1.close();
@@ -79,7 +79,7 @@ cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
 void offset_from_file()
 {
 	ifstream myfile;
-	myfile.open("offset.txt", ios::in|ios::out);
+	myfile.open("offset_back.txt", ios::in|ios::out);
 	for(int i=0; i<41; i++)
 	{
 		int tmp;
@@ -123,25 +123,25 @@ void rpc_peak_searching()
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 //measures
 //down
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
 fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
 //
 //
 
 //up
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
- // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
-//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046081301.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046080126.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046075139.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046074125.root");
+fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046073033.root");
  for(int s = 0 ; s < fileList.size() ; s++){
   TFile *eventFile;
   TTree *eventTree;
  
-//TH1F *strip_histo[42];   
+TH1F *strip_histo[42];   
   for(int i =0; i <42; i ++)
   {
    	stringstream strs;
@@ -217,9 +217,9 @@ if(t%100000==0)
     }
    }
 
-//calc_pik(strip_histo, fileList.at(s));
+calc_pik(strip_histo, fileList.at(s));
 }
-TCanvas *C1 = new TCanvas("C1","C1",600,800);
+/*TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
@@ -233,11 +233,11 @@ TCanvas *C1 = new TCanvas("C1","C1",600,800);
   }
  C1->cd();
 Pos_histo->Draw("COLZ");
-C[0]->cd(1);
+C[0]->cd(1);*/
 
-calc_pik(strip_histo, "XD");
+//calc_pik(strip_histo, "XD");
 
-for(int i=0; i<n; i++)
+/*for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
@@ -246,7 +246,7 @@ for(int i=0; i<n; i++)
 			strip_histo[i*6+j+1]->Draw();
 		}
 	}
-}
+}*/
 
 
 timer.Stop();

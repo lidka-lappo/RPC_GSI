@@ -74,7 +74,7 @@ void rpc_analysis()
 
   std::vector<TString> fileList;
 //background
- //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22045050208.root");
  //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046083458.root");
 
 //low
@@ -82,13 +82,13 @@ void rpc_analysis()
 //
 //felt
 
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 
 //measures
 //down
- fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
@@ -164,7 +164,7 @@ if(t%100000==0)
    }
  }
  TCanvas *C1 = new TCanvas("C1","C1",600,800);
-  int n= 7;
+/*  int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -174,9 +174,10 @@ if(t%100000==0)
 	char *name = (char *) tmp.c_str();
 	C[i] = new TCanvas(name,name,1500,600);
 	C[i]->Divide(3,2);
-  }
+  }*/
  C1->cd();
- Pos_histo->Draw("colz");
+ strip_histo[12]->Draw();
+// Pos_histo->Draw("colz");
 	int newnBin = 700;
 	int newMinHist = 800;
 for(int j =0; j<42; j++)
@@ -204,8 +205,14 @@ for(int j =0; j<42; j++)
 	hist_sub[j]->SetBinContent(i+1, (fitAll[j]->Eval(newMinHist+i)-strip_histo[j]->GetBinContent(i+(nbin-newnBin)+1)));//+54
 	}
 	//h1->Draw();
+
 }
-for(int i=0; i<n; i++)
+
+	 		
+
+fitAll[12]->Draw("SAME");
+//hist_sub[12]->Draw("SAME");
+/*for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
@@ -216,37 +223,34 @@ for(int i=0; i<n; i++)
 	 		fitAll[i*6+j+1]->Draw("SAME");
 		}
 	}
-}
+}*/
 
 
-	//int hmin = 200*nbin/(maxHist-minHist);
-	//int hmax = 400*nbin/(maxHist-minHist);
-	//hist_sub[2]->GetXaxis()->SetRange(hmin,hmax);
 	int ref = hist_sub[11]->GetMaximumBin(); //2
-	//cout<<"Range: " <<hmin<<"-"<<hmax<<endl;
+//	int ref = hist_sub[11]->GetMaximumBin(); //2
 	cout<<"Ref: " <<ref+(nbin-newnBin+1)<<endl; //+54
 fstream myfile;
-myfile.open("offset_dvl.xt", ios::out);
+myfile.open("offset_tmp.txt", ios::out);
 for(int j =1; j<42; j++)
 {
+//	int nPeaks = hist_sub[j]->ShowPeaks(2,"", 0.7);
 	int shift =ref-(hist_sub[j]->GetMaximumBin());
-	if(abs(shift)>150)
+/*	if(abs(shift)>150)
 	{
 	cout<<j<<" strip to fix, shit:  "<<shift<<endl;
 	//hist_sub[j]->GetXaxis()->SetRange(795,900);
-	shift=0;	
+	shift=2000;	
 	//hist_sub[j]->GetXaxis()->SetRange(795,hmax);
-	}
-	if(j==6)
+	}*/
+/*	if(j==6)
 	{	
 		hist_sub[j]->GetXaxis()->SetRange(120,700);//4, 46
 		
 		shift =ref-(hist_sub[j]->GetMaximumBin());
 
-	}
+	}*/
 	cout<<j<<"wire: "<<((nbin-newnBin+1)+ref+shift)<<endl; //x15
 	shift=shift; //x15
-//	cout<<shift<<endl;
 	myfile<<shift<<endl;
 } 
 myfile.close();
