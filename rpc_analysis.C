@@ -176,7 +176,7 @@ if(t%100000==0)
 	C[i]->Divide(3,2);
   }*/
  C1->cd();
- strip_histo[12]->Draw();
+// strip_histo[12]->Draw();
 // Pos_histo->Draw("colz");
 	int newnBin = 700;
 	int newMinHist = 800;
@@ -210,8 +210,8 @@ for(int j =0; j<42; j++)
 
 	 		
 
-fitAll[12]->Draw("SAME");
-//hist_sub[12]->Draw("SAME");
+//fitAll[12]->Draw("SAME");
+hist_sub[12]->Draw("");
 /*for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
