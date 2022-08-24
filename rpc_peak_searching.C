@@ -11,7 +11,6 @@ int minData = 0;
 int maxData = 1500;
 int minHist = 0;
 int maxHist = 1500;
-TH1F *strip_histo_low[41];   
 TF1 *fit[42];
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
@@ -41,7 +40,7 @@ for(int i=1; i<42; i++)
 for(int j=2; j<42; j++)
 {
 
-//	strip_histo[j]->Add(tmphist[j-1], -1);
+	strip_histo[j]->Add(tmphist[j-1], -1);
 	int nPeaks=strip_histo[j]->ShowPeaks(0.01, "", 0.3); //0.1-0.001
 
 	if(nPeaks!=0){
@@ -69,7 +68,7 @@ for(int j=2; j<42; j++)
 	}
 }
 fstream myfile1;
-myfile1.open("dataUltimate.txt", ios::app);
+myfile1.open("dataU.txt", ios::app);
 myfile1<<"File: "<<fileList<<"("<<posX<<":"<<posY*30<<") "<<endl;
 //myfile1<<"strip: "<< posY <<endl;
 myfile1.close();
@@ -153,7 +152,7 @@ TH1F *strip_histo[42];
 	char *name = (char *) tmp.c_str();
 	char *name1 = (char *) tmp1.c_str();
 	strip_histo[i] = new TH1F(name,name,nbin,minHist,maxHist);
-	strip_histo_low[i] = new TH1F(name1,name1,100,minHist,maxHist);
+	//strip_histo_low[i] = new TH1F(name1,name1,100,minHist,maxHist);
 	
   }
 
@@ -233,11 +232,11 @@ calc_pik(strip_histo, fileList.at(s));
   }
  C1->cd();
 Pos_histo->Draw("COLZ");
-C[0]->cd(1);*/
-
+C[0]->cd(1);
+*/
 //calc_pik(strip_histo, "XD");
-
-/*for(int i=0; i<n; i++)
+/*
+for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
@@ -246,8 +245,8 @@ C[0]->cd(1);*/
 			strip_histo[i*6+j+1]->Draw();
 		}
 	}
-}*/
-
+}
+*/
 
 timer.Stop();
   Double_t rtime = timer.RealTime();
