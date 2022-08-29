@@ -41,6 +41,7 @@ for(int j=2; j<42; j++)
 {
 
 	strip_histo[j]->Add(tmphist[j-1], -1);
+	strip_histo[j]->Smooth(10);
 	int nPeaks=strip_histo[j]->ShowPeaks(0.01, "", 0.3); //0.1-0.001
 
 	if(nPeaks!=0){
@@ -68,8 +69,8 @@ for(int j=2; j<42; j++)
 	}
 }
 fstream myfile1;
-myfile1.open("dataU.txt", ios::app);
-myfile1<<"File: "<<fileList<<"("<<posX<<":"<<posY*30<<") "<<endl;
+myfile1.open("dataUltimate.txt", ios::app);
+myfile1<<"File: "<<fileList<<"("<<posX-20<<":"<<posY*30<<") "<<endl;
 //myfile1<<"strip: "<< posY <<endl;
 myfile1.close();
 cout<<"(x:y) ("<<posX<<" : "<<posY<<")"<<endl;
@@ -193,8 +194,8 @@ TH1F *strip_histo[42];
   Int_t goodP2P = 0;
   Float_t fEnergy,fTheta2,fTheta1,fPhi1,fPhi2,fEnergy1,fEnergy2,openingAngle;
 
-  for(Int_t t = 0; t< nEvents; t++){
-  //for(Int_t t = 0; t< 5000000; t++){
+ for(Int_t t = 0; t< nEvents; t++){
+//  for(Int_t t = 0; t< 5000000; t++){
    hitCA->Clear();
 if(t%100000==0)
 	cout<<t<<endl;	 
@@ -246,8 +247,8 @@ for(int i=0; i<n; i++)
 		}
 	}
 }
-*/
 
+*/
 timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

@@ -23,7 +23,9 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
  Double_t sigma = par[3];
 if( x[0]>=800)
  {
-  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+
+ return norm*ROOT::Math::exp(-x[0]/mean);
+//  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
 // return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
 else
@@ -39,7 +41,8 @@ Double_t fitGaussAll(Double_t *x, Double_t *par)
  Double_t mpv = par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
- return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ //return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+ return norm*ROOT::Math::exp(-x[0]/mean);
 // return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
@@ -47,7 +50,7 @@ double fmod_magic(double a, double b) {
          Int_t c = 2048*5;
 	 return fmod(a - b +c +c/2.,c) -c/2.;   
 }
-void rpc_analysis()
+void rpc_differentfit()
 {
 
   TStopwatch timer;
@@ -88,9 +91,9 @@ void rpc_analysis()
 //measures
 //down
 // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046071959.root");
 
 
@@ -164,7 +167,7 @@ if(t%100000==0)
    }
  }
  TCanvas *C1 = new TCanvas("C1","C1",600,800);
-/*  int n= 7;
+  int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
   {
@@ -174,10 +177,10 @@ if(t%100000==0)
 	char *name = (char *) tmp.c_str();
 	C[i] = new TCanvas(name,name,1500,600);
 	C[i]->Divide(3,2);
-  }*/
+  }
  C1->cd();
- strip_histo[6]->Draw();
-// Pos_histo->Draw("colz");
+ //strip_histo[12]->Draw();
+ Pos_histo->Draw("colz");
 	int newnBin = 700;
 	int newMinHist = 800;
 for(int j =0; j<42; j++)
@@ -212,7 +215,7 @@ for(int j =0; j<42; j++)
 
 //fitAll[12]->Draw("SAME");
 //hist_sub[12]->Draw("");
-/*for(int i=0; i<n; i++)
+for(int i=0; i<n; i++)
 {
 	for(int j=0; j<6; j++)
 	{
@@ -223,14 +226,14 @@ for(int j =0; j<42; j++)
 	 		fitAll[i*6+j+1]->Draw("SAME");
 		}
 	}
-}*/
+}
 
 
 	int ref = hist_sub[11]->GetMaximumBin(); //2
 //	int ref = hist_sub[11]->GetMaximumBin(); //2
 	cout<<"Ref: " <<ref+(nbin-newnBin+1)<<endl; //+54
 fstream myfile;
-myfile.open("offset_tmp.txt", ios::out);
+myfile.open("offset_diff.txt", ios::out);
 for(int j =1; j<42; j++)
 {
 //	int nPeaks = hist_sub[j]->ShowPeaks(2,"", 0.7);
@@ -267,7 +270,7 @@ timer.Stop();
 # ifndef __CINT__
 int main(int argc, char **argv){
 	TApplication app("app",&argc,argv);
-	rpc_analysis();
+	rpc_differentfit();
 	app.Run();
 	return 0 ;
 }
