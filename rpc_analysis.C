@@ -1,76 +1,8 @@
 using namespace std;
-struct crystal_info {
-
-  Int_t fCrystalId;
-  Float_t fTheta;
-  Float_t fPhi;
-
-};
-int nbin = 1500; //100
-int minData = 0;
-int maxData = 1500;
-int minHist = 0;
-int maxHist = 1500;
-TH1F *strip_histo[42];   
-TF1 *fit[42];
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
-Double_t fitGaussReject(Double_t *x, Double_t *par)
+void plot()
 {
- Double_t norm = par[0];
- Double_t mpv =par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
-if( x[0]>=0)
- {
-  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
- }
-else
- {
- TF1::RejectPoint();
- return 0;
-}
-
-}
-Double_t fitGaussAll(Double_t *x, Double_t *par)
-{
- Double_t norm = par[0];
- Double_t mpv = par[1];
- Double_t mean =par[2];
- Double_t sigma = par[3];
- return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
-// return norm*TMath::Landau(x[0], mpv, sigma, false);
-}
-
-double fmod_magic(double a, double b) {
-         Int_t c = 2048*5;
-	 return fmod(a - b +c +c/2.,c) -c/2.;   
-}
-void rpc_analysis()
-{
-
-  TStopwatch timer;
-  timer.Start();
- ///////////////////////////////////////////////////////////
- 
-  TH2F *Pos_histo = new TH2F("Position","Position",2500,-500,2000,41,0,42);
-
-//  TGraph *strips_[42];   
-
-
-  for(int i =0; i <42; i ++)
-  {
-   	stringstream strs;
-	strs << i;
-	string tmp = strs.str();
-	char *name = (char *) tmp.c_str();
-	strip_histo[i] = new TH1F(name,name,nbin,minHist,maxHist);
-	
-  }
-
-/////////////////////////////////////////////////////////////////////
-
 
   std::vector<TString> fileList;
 //background
@@ -263,12 +195,3 @@ timer.Stop();
 
 }
 
-
-# ifndef __CINT__
-int main(int argc, char **argv){
-	TApplication app("app",&argc,argv);
-	rpc_analysis();
-	app.Run();
-	return 0 ;
-}
-#endif
