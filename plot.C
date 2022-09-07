@@ -52,7 +52,7 @@ void plot()
   gr->SetMarkerSize(1.5);
   gr->SetMarkerColor(4);
   gr->SetMarkerStyle(21);  
-  gr->SetTitle("Measured/RPC");
+  gr->SetTitle("");
   gr->GetXaxis()->SetTitle("RPC measured position X");
   gr->GetYaxis()->SetTitle("Sticker position X");
   gr->Draw("AP");
@@ -68,17 +68,23 @@ xRPC[i]=xRPC[i]-offset[1];
   TCanvas *C2 = new TCanvas("C2","C2",800,800);
 //  gStyle->SetOptStat(0);
   C2->cd();
-  grRPC->SetMarkerSize(0.5);
-  grMes->SetMarkerSize(0.5);
+  grRPC->SetMarkerSize(1);
+  grMes->SetMarkerSize(1);
   grRPC->SetMarkerColor(4);
-  grMes->SetMarkerColor(3);
+  grMes->SetMarkerColor(2);
   grRPC->SetMarkerStyle(21);  
   grMes->SetMarkerStyle(20);  
-  grRPC->SetTitle("Measured/RPC");
+  grRPC->SetTitle("Source in RPC");
+  grMes->SetTitle("Positions of stickers");
   grRPC->GetXaxis()->SetTitle("X(mm)");
   grRPC->GetYaxis()->SetTitle("Y(mm)");
   grRPC->Draw("AP");
   grMes->Draw("PSAME");
+  C2->BuildLegend();
+// auto legend =new TLegend(0.1, 0.7, 0.48, 0.9);
+//legend->AddEntry("grMes", "Positions of stickers", "lep");
+//legend->AddEntry("grRPC", "Source in RPC", "lep");
+//legend->Draw();
 }
 
 
