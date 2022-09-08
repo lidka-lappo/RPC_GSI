@@ -90,24 +90,25 @@ for(int i=0; i<10; i++)
 	myfile1>>Ys;
 	CalculatingPoints(posXYZ,par, Xx, Yy, Zz, Xs, Ys);
 	cout<<"x,y,z : " <<posXYZ[0]<<", "<<posXYZ[1]<<", "<<posXYZ[2]<<endl;
-	gr1->SetPoint(gr1->GetN(), posXYZ[0], posXYZ[1], posXYZ[2]);
+	gr1->SetPoint(gr1->GetN(), posXYZ[2], posXYZ[0], posXYZ[1]);
 }
 myfile.close();
-gr->SetPoint(gr->GetN(), 0, 0, 0);
+TGraph2D *gr2 = new TGraph2D(n, Zz, Xx, Yy);
+gr2->SetPoint(gr->GetN(), 0, 0, 0);
 TCanvas *C1 = new TCanvas("C1","C1",800,800);
   gStyle->SetOptStat(0);
   C1->cd();
   gr1->SetMarkerSize(1.5);
   gr1->SetMarkerColor(3);
   gr1->SetMarkerStyle(20);  
-  gr->SetMarkerSize(1.5);
-  gr->SetMarkerColor(4);
-  gr->SetMarkerStyle(21);  
-  gr->SetTitle("Measured/RPC");
-  gr->GetXaxis()->SetTitle("RPC measured position X");
-  gr->GetYaxis()->SetTitle("Sticker position X");
+  gr2->SetMarkerSize(1.5);
+  gr2->SetMarkerColor(4);
+  gr2->SetMarkerStyle(21);  
+  gr2->SetTitle("Measured/RPC");
+  gr2->GetXaxis()->SetTitle("RPC measured position X");
+  gr2->GetYaxis()->SetTitle("Sticker position X");
  // gr->Draw("AP");
-  gr->Draw("AP");
+  gr2->Draw("AP");
   //f2->Draw("SAME");
   gr1->Draw("SAMEAP");
 }

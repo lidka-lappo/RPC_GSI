@@ -21,11 +21,11 @@ Double_t fitGaussReject(Double_t *x, Double_t *par)
  Double_t mpv =par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
-if( x[0]>=800)
+if( x[0]>=700)
  {
 
- return norm*ROOT::Math::exp(-x[0]/mean);
-//  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+// return norm*ROOT::Math::exp(-x[0]/mean);
+  return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
 // return norm*TMath::Landau(x[0], mpv, sigma, false);
  }
 else
@@ -41,8 +41,8 @@ Double_t fitGaussAll(Double_t *x, Double_t *par)
  Double_t mpv = par[1];
  Double_t mean =par[2];
  Double_t sigma = par[3];
- //return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
- return norm*ROOT::Math::exp(-x[0]/mean);
+return norm*ROOT::Math::gaussian_pdf(x[0], sigma, mean);
+// return norm*ROOT::Math::exp(-x[0]/mean);
 // return norm*TMath::Landau(x[0], mpv, sigma, false);
 }
 
@@ -179,10 +179,10 @@ if(t%100000==0)
 	C[i]->Divide(3,2);
   }
  C1->cd();
- //strip_histo[12]->Draw();
- Pos_histo->Draw("colz");
-	int newnBin = 700;
-	int newMinHist = 800;
+ strip_histo[6]->Draw();
+// Pos_histo->Draw("colz");
+	int newnBin = 800;
+	int newMinHist = 700;
 for(int j =0; j<42; j++)
 {
 	//strip_histo[j]->Scale(1.0/strip_histo[j]->Integral());
@@ -229,8 +229,8 @@ for(int i=0; i<n; i++)
 }
 
 
-	int ref = hist_sub[11]->GetMaximumBin(); //2
 //	int ref = hist_sub[11]->GetMaximumBin(); //2
+	int ref = 50; //2
 	cout<<"Ref: " <<ref+(nbin-newnBin+1)<<endl; //+54
 fstream myfile;
 myfile.open("offset_diff.txt", ios::out);
@@ -245,13 +245,13 @@ for(int j =1; j<42; j++)
 	shift=2000;	
 	//hist_sub[j]->GetXaxis()->SetRange(795,hmax);
 	}*/
-/*	if(j==6)
+	if(j==6)
 	{	
 		hist_sub[j]->GetXaxis()->SetRange(120,700);//4, 46
 		
 		shift =ref-(hist_sub[j]->GetMaximumBin());
 
-	}*/
+	}
 	cout<<j<<"wire: "<<((nbin-newnBin+1)+ref+shift)<<endl; //x15
 	shift=shift; //x15
 	myfile<<shift<<endl;

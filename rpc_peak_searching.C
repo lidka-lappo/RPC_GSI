@@ -16,6 +16,7 @@ TF1 *fitAll[42];
 TH1F *hist_sub[42];
 int offset[41];
 TH1F *strip_histo[42];   
+TH1F *tmphist[42];
 void calc_pik(TH1F **strip_histo, TString fileList)
 {
 	int newnBin = 47;
@@ -24,7 +25,7 @@ int posY=0;
 int posX=0;
 double tmpMax=0;
 
-TH1F *tmphist[42];
+//TH1F *tmphist[42];
 for(int i=1; i<42; i++)
 {
 
@@ -195,7 +196,7 @@ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046
   Float_t fEnergy,fTheta2,fTheta1,fPhi1,fPhi2,fEnergy1,fEnergy2,openingAngle;
 
  for(Int_t t = 0; t< nEvents; t++){
-//  for(Int_t t = 0; t< 5000000; t++){
+ // for(Int_t t = 0; t< 5000000; t++){
    hitCA->Clear();
 if(t%100000==0)
 	cout<<t<<endl;	 
@@ -220,6 +221,7 @@ if(t%100000==0)
 calc_pik(strip_histo, fileList.at(s));
 }
 TCanvas *C1 = new TCanvas("C1","C1",600,800);
+gStyle->SetPalette(1);
 gStyle->SetOptStat(0);
 //  int n= 7;
 // TCanvas *C[n];
@@ -234,7 +236,11 @@ gStyle->SetOptStat(0);
   }*/
  C1->cd();
 //Pos_histo->Draw("COLZ");
-strip_histo[6]->Draw();
+
+tmphist[6]->SetLineColor(kRed);
+//strip_histo[6]->Draw("SAME PLC");
+//tmphist[6]->Draw("PLC");
+strip_histo[6]->Draw("PLC");
 //C[0]->cd(1);
 
 //calc_pik(strip_histo, "XD");

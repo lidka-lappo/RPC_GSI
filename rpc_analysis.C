@@ -1,6 +1,7 @@
 using namespace std;
 TF1 *fitAll[42];
 TH1F *hist_sub[42];
+TH1F *trip_histo[42];
 void plot()
 {
 
@@ -15,11 +16,11 @@ void plot()
 //felt
 
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060515.root");
-fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
+//fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046064454.root");
 
 //measures
 //down
-// fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
+ fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046082416.root");
 // fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046060952.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046065513.root");
 //fileList.push_back("/u/land/mxarepe/unpkd_data/GSI_intern/root_files/r3b_st22046070926.root");
@@ -88,14 +89,14 @@ if(t%100000==0)
     for(Int_t i = 0; i< nHits; i++){
      auto map1 = (R3BRpcHitData*)(hitCA->At(i));
      if(map1->GetDetId()==0){
-      Pos_histo->Fill(map1->GetPos(),map1->GetChannelId());
+//      Pos_histo->Fill(map1->GetPos(),map1->GetChannelId());
       strip_histo[map1->GetChannelId()]->Fill(map1->GetPos());
      }
 
     }
    }
  }
- TCanvas *C1 = new TCanvas("C1","C1",600,800);
+ //TCanvas *C1 = new TCanvas("C1","C1",600,800);
   int n= 7;
  TCanvas *C[n];
   for (int i=0; i<n; i++)
@@ -107,9 +108,9 @@ if(t%100000==0)
 	C[i] = new TCanvas(name,name,1500,600);
 	C[i]->Divide(3,2);
   }
- C1->cd();
+ //C1->cd();
 // strip_histo[6]->Draw();
- Pos_histo->Draw("colz");
+ //Pos_histo->Draw("colz");
 	int newnBin = 700;
 	int newMinHist = 800;
 for(int j =0; j<42; j++)
@@ -158,11 +159,11 @@ for(int i=0; i<n; i++)
 }
 
 
-	int ref = hist_sub[11]->GetMaximumBin(); //2
 //	int ref = hist_sub[11]->GetMaximumBin(); //2
+	int ref = 0; //2
 	cout<<"Ref: " <<ref+(nbin-newnBin+1)<<endl; //+54
 fstream myfile;
-myfile.open("offset_tmp.txt", ios::out);
+myfile.open("offset_official.txt", ios::out);
 for(int j =1; j<42; j++)
 {
 //	int nPeaks = hist_sub[j]->ShowPeaks(2,"", 0.7);

@@ -23,7 +23,8 @@ void plot()
 	Double_t EyRPC[10] ={9,9,9,9,9,9,9,9,9,9};
 //	Double_t EyRPC[10] ={17,17,17,17,17,17,17,17,17,17};
 	//Double_t ExRPC[10] ={17,17,17,17,17,17,17,17,17,17};
-	Double_t ExRPC[10] ={17,17,17,17,17,17,17,17,17,17};
+	//Double_t ExRPC[10] ={17,17,17,17,17,17,17,17,17,17};
+	Double_t ExRPC[10] ={8,8,8,8,8,8,8,8,8,8};
 	ifstream myfile;
 	ifstream myfile1;
 	ifstream myfile2;
